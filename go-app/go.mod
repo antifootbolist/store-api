@@ -1,6 +1,6 @@
 module store-api
 
-go 1.20.1
+go 1.20
 
 require (
     github.com/lib/pq
