@@ -1,14 +1,14 @@
-# Use the official Go image as the base image
-FROM golang:alpine
+FROM golang:1.20-alpine
 
-# Set the working directory inside the container
+RUN apk add --no-cache git
+
 WORKDIR /app
+COPY go-app/go.mod go-app/go.sum ./
+RUN go mod download
 
-# Copy the Go application source code to the container
 COPY go-app/main.go .
-
-# Compile the Go application
 RUN go build -o go-app main.go
 
-# Set the command to run the Go application
+EXPOSE 8080
+
 CMD ["./go-app"]
