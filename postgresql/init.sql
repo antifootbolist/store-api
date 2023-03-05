@@ -1,6 +1,6 @@
-CREATE DATABASE store-api;
+CREATE DATABASE store_api;
 
-\c store-api;
+\c store_api;
 
 CREATE TABLE products (
   id INT,
