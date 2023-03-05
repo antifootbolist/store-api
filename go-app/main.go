@@ -3,13 +3,12 @@ package main
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 
 	_ "github.com/lib/pq"
 )
-
-var db *sql.DB
 
 type Product struct {
 	id          int
@@ -23,15 +22,7 @@ type Products struct {
 }
 
 func main() {
-	var err error
-
-	// Establish connection to container DB
-	db, err := sql.Open("postgres", "host=postgresql user=user-api password=qwe123 sslmode=disable")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	defer db.Close()
+	fmt.Println("Starting server on port 8080 ...")
 
 	// Handler API
 	http.HandleFunc("/api/v1/products", getProducts)
@@ -43,15 +34,23 @@ func main() {
 func getProducts(w http.ResponseWriter, r *http.Request) {
 	w_products := Products{}
 
+	// Establish connection to container DB
+	db, err := sql.Open("postgres", "host=130.193.36.79 user=user-api password=qwe123 dbname=store_api sslmode=disable")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer db.Close()
+
 	// Query to DB to get list of products
-	rows, err := db.Query("SELECT id, name, description, price FROM products")
+	fmt.Println("# Query from table products")
+	rows, err := db.Query("SELECT id,name,description,price FROM products")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	defer rows.Close()
-
+	fmt.Println("# Value of rows", rows)
 	for rows.Next() {
 		w_product := Product{}
 
@@ -64,14 +63,8 @@ func getProducts(w http.ResponseWriter, r *http.Request) {
 		w_products.Products = append(w_products.Products, w_product)
 	}
 
-	err = rows.Err()
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
+	fmt.Println("# Value of Products", w_products)
 	// Transform to JSON format and send to client
-	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(w_products)
 
 }
