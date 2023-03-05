@@ -25,25 +25,25 @@ type Products struct {
 func main() {
 	var err error
 
-	// Подключение к базе данных
-	db, err := sql.Open("postgres", "host=portgresql user=user-api password=qwe123 sslmode=disable")
+	// Establish connection to container DB
+	db, err := sql.Open("postgres", "host=postgresql user=user-api password=qwe123 sslmode=disable")
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	defer db.Close()
 
-	// Обработчик API
+	// Handler API
 	http.HandleFunc("/api/v1/products", getProducts)
 
-	// Запуск сервера на порту 8080
+	// Run server on port 8080
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
 
 func getProducts(w http.ResponseWriter, r *http.Request) {
 	w_products := Products{}
 
-	// Запрос к базе данных для получения списка товаров
+	// Query to DB to get list of products
 	rows, err := db.Query("SELECT id, name, description, price FROM products")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -70,7 +70,7 @@ func getProducts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Преобразование списка товаров в формат JSON и отправка клиенту
+	// Transform to JSON format and send to client
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(w_products)
 
