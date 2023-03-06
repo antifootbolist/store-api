@@ -1,9 +1,10 @@
 FROM golang:1.20-alpine
 
+WORKDIR /app
+
 RUN apk add --no-cache git
 
-WORKDIR /app
-COPY go-app/go.mod go-app/go.sum ./
+COPY go-app/go.mod go-app/go.sum .
 RUN go mod download
 
 COPY go-app/main.go .
