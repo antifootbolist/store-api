@@ -8,7 +8,7 @@ RUN npm install -g apidoc
 COPY go-app/main.go go-app/apidoc.json .
 RUN apidoc -i ./ -o ./apidoc
 
-FROM jwilder/nginx-proxy:latest
+FROM nginx:alpine
 
 WORKDIR /usr/share/nginx/html
 
