@@ -5,7 +5,7 @@ WORKDIR /app
 RUN apk add --no-cache git
 RUN npm install -g apidoc
 
-COPY go-app/main.go .
+COPY go-app/main.go go-app/apidoc.json .
 RUN apidoc -i ./ -o ./apidoc
 
 FROM nginx:alpine
