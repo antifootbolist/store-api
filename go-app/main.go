@@ -92,7 +92,7 @@ func getProducts(w http.ResponseWriter, r *http.Request) {
 	w_products := Products{}
 
 	// Establish connection to container DB
-	db, err := sql.Open("postgres", "host=130.193.36.79 user=user-api password=qwe123 dbname=store_api sslmode=disable")
+	db, err := sql.Open("postgres", "host=postgresql user=user-api password=qwe123 dbname=store_api sslmode=disable")
 	if err != nil {
 		log.Fatal(err)
 	}
