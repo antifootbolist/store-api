@@ -1,4 +1,4 @@
-FROM node:14.18.1-alpine3.15 AS apidoc
+FROM node:alpine AS apidoc
 
 WORKDIR /app
 
