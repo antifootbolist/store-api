@@ -61,7 +61,7 @@ pipeline {
                                 git config user.name ${GIT_AUTHOR_NAME} && \
                                 git config user.email ${GIT_AUTHOR_EMAIL} && \
                                 git add . && \
-                                git commit -m \"Update apiDoc documentation for Store API\" && \
+                                git commit -m \"Update apiDoc for build #${env.BUILD_NUMBER}\" && \
                                 git push -f https://${GH_NAME}:${GH_TOKEN}@${url} main"
                         }
                     }
