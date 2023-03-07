@@ -49,15 +49,15 @@ pipeline {
                 script {
                     def app = docker.build("${env.APIDOC_NAME}", "-f ${env.GO_APP_NAME}/Dockerfile.apidoc .")
 
-                    app.inside("--workdir /app") {
+                    app.inside("--workdir=/app") {
                         // sh 'cp -R /app/apidoc ./apidoc' - don't need this
 
                         withCredentials([usernamePassword(credentialsId: env.GH_TOKEN_ID, usernameVariable: 'GH_NAME', passwordVariable: 'GH_TOKEN')]) {
                             def url = sh(script: "echo ${env.GHP_URL} | sed 's#https://##'", returnStdout: true).trim()
 
-                            sh 'pwd && ls -la'
-                            sh "git clone https://${GH_NAME}:${GH_TOKEN}@${url} ghp_repo"
-                            sh 'cp -R ./apidoc/* ghp_repo/'
+                            sh 'pwd && ls -la && cd /app && pwd && ls -la'
+                            sh "cd /app && git clone https://${GH_NAME}:${GH_TOKEN}@${url} ghp_repo"
+                            sh 'cd /app && cp -R ./apidoc/* ghp_repo/'
                             sh 'pwd && ls -la'
                             sh 'cd ghp_repo && pwd && ls -la'
                             sh "cd ghp_repo && \
