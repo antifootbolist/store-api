@@ -42,29 +42,30 @@ pipeline {
                 }
             }
         }
-        stage('Generate apiDoc') {
+        stage('Generate and Publish apiDoc') {
             steps {
                 script {
-                    app = docker.build("${env.APIDOC_NAME}", "-f ${env.GO_APP_NAME}/Dockerfile.apidoc .")
+                    def app = docker.build("${env.APIDOC_NAME}", "-f ${env.GO_APP_NAME}/Dockerfile.apidoc .")
+
                     app.inside {
                         sh 'cp -R /app/apidoc ./apidoc'
-                    }
-                }
-            }
-        }
-        stage('Publish apiDoc') {
-            steps {
-                withCredentials([usernamePassword(credentialsId: env.GH_TOKEN_ID, usernameVariable: 'GH_NAME', passwordVariable: 'GH_TOKEN')]) {
-                    script {
-                        def url = sh(script: "echo ${env.GHP_URL} | sed 's#https://##'", returnStdout: true).trim()
-                        sh "git clone https://${GH_NAME}:${GH_TOKEN}@${url} ghp_repo"
-                        sh 'cp -R ./apidoc/* ghp_repo/'
-                        sh 'cd ghp_repo'
-                        sh "git config user.name ${GIT_AUTHOR_NAME}"
-                        sh "git config user.email ${GIT_AUTHOR_EMAIL}"
-                        sh 'git add .'
-                        sh 'git commit -m "Update apiDoc documentation for Store API"'
-                        sh "git push -f https://${GH_NAME}:${GH_TOKEN}@${url} main"
+
+                        withCredentials([usernamePassword(credentialsId: env.GH_TOKEN_ID, usernameVariable: 'GH_NAME', passwordVariable: 'GH_TOKEN')]) {
+                            def url = sh(script: "echo ${env.GHP_URL} | sed 's#https://##'", returnStdout: true).trim()
+
+                            sh 'pwd'
+                            sh "git clone https://${GH_NAME}:${GH_TOKEN}@${url} ghp_repo"
+                            sh 'cp -R ./apidoc/* ghp_repo/'
+                            sh "git config user.name ${GIT_AUTHOR_NAME}"
+                            sh "git config user.email ${GIT_AUTHOR_EMAIL}"
+                            sh 'pwd'
+                            sh 'cd ghp_repo && git add .'
+                            sh 'pwd'
+                            sh 'cd ghp_repo && git commit -m "Update apiDoc documentation for Store API"'
+                            sh 'pwd'
+                            sh "cd ghp_repo && git push -f https://${GH_NAME}:${GH_TOKEN}@${url} main"
+                            sh 'pwd'
+                        }
                     }
                 }
             }
