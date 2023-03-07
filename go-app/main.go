@@ -52,7 +52,7 @@ POST /checkout - Не выполнено
  * @apiGroup Products
  * @apiPermission user
  *
- * @apiSuccess {Array} products list of products.
+ * @apiSuccess {Array} products List of products.
  *
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
