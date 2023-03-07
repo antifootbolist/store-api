@@ -52,7 +52,7 @@ pipeline {
                         
                         def app = docker.build("${env.APIDOC_NAME}", "-f ${env.GO_APP_NAME}/Dockerfile.apidoc .")
                         
-                        app.inside("--workdir=/app") {
+                        app.inside("--workdir=/app -u root") {
                             sh 'pwd && ls -la && cd /app && pwd && ls -la'
                             sh "cd /app && git clone https://${GH_NAME}:${GH_TOKEN}@${url} ghp_repo"
                             sh 'cd /app && cp -R ./apidoc/* ghp_repo/'
