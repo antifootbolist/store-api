@@ -52,7 +52,7 @@ func GetUpdateDeleteProduct(w http.ResponseWriter, r *http.Request) {
 	} else if r.Method == "POST" {
 		UpdateProduct(w, r)
 	} else {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		http.Error(w, "InvalidRequest", http.StatusBadRequest)
 		return
 	}
 }
@@ -97,9 +97,16 @@ func GetUpdateDeleteProduct(w http.ResponseWriter, r *http.Request) {
  *     {
  *       "error": "InvalidRequest"
  *     }
+ *
+ * @apiError (Server Error 5xx) InternalServerError There was a server-side error while processing the request.
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 500 Internal Server Error
+ *     {
+ *       "error": "InternalServerError"
+ *     }
 */
 
-// func GetProducts(w http.ResponseWriter, r *http.Request) {
 func GetProducts(w http.ResponseWriter, r *http.Request) {
 
 	w_products := Products{}
@@ -108,7 +115,7 @@ func GetProducts(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("# Query from table products")
 	rows, err := db.Query("SELECT id,name,description,price FROM products")
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, "InternalServerError", http.StatusInternalServerError)
 		return
 	}
 
@@ -117,7 +124,7 @@ func GetProducts(w http.ResponseWriter, r *http.Request) {
 
 		err = rows.Scan(&w_product.Id, &w_product.Name, &w_product.Description, &w_product.Price)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			http.Error(w, "InternalServerError", http.StatusInternalServerError)
 			return
 		}
 
@@ -154,12 +161,28 @@ func GetProducts(w http.ResponseWriter, r *http.Request) {
  *       }
  *     }
  *
+ * @apiError InvalidRequest The request is invalid.
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 400 Bad Request
+ *     {
+ *       "error": "InvalidRequest"
+ *     }
+ *
  * @apiError ProductNotFound The product was not found.
  *
  * @apiErrorExample Error-Response:
  *     HTTP/1.1 404 Not Found
  *     {
  *       "error": "ProductNotFound"
+ *     }
+ *
+ * @apiError (Server Error 5xx) InternalServerError There was a server-side error while processing the request.
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 500 Internal Server Error
+ *     {
+ *       "error": "InternalServerError"
  *     }
 */
 
@@ -168,7 +191,7 @@ func GetProduct(w http.ResponseWriter, r *http.Request) {
 	// Parse the product ID from the URL parameter
 	id, err := strconv.Atoi(path.Base(r.URL.Path))
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, "InvalidRequest", http.StatusBadRequest)
 		return
 	}
 
@@ -184,7 +207,7 @@ func GetProduct(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "ProductNotFound", http.StatusNotFound)
 		return
 	} else if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, "InternalServerError", http.StatusInternalServerError)
 		return
 	}
 
@@ -219,6 +242,14 @@ func GetProduct(w http.ResponseWriter, r *http.Request) {
  *       }
  *     }
  *
+ * @apiError InvalidRequest The request is invalid.
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 400 Bad Request
+ *     {
+ *       "error": "InvalidRequest"
+ *     }
+ *
  * @apiError ProductNotFound The product was not found.
  *
  * @apiErrorExample Error-Response:
@@ -227,6 +258,13 @@ func GetProduct(w http.ResponseWriter, r *http.Request) {
  *       "error": "ProductNotFound"
  *     }
  *
+ * @apiError (Server Error 5xx) InternalServerError There was a server-side error while processing the request.
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 500 Internal Server Error
+ *     {
+ *       "error": "InternalServerError"
+ *     }
 */
 
 func UpdateProduct(w http.ResponseWriter, r *http.Request) {
@@ -234,7 +272,7 @@ func UpdateProduct(w http.ResponseWriter, r *http.Request) {
 	// Parse the product ID from the URL parameter
 	id, err := strconv.Atoi(path.Base(r.URL.Path))
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, "InvalidRequest", http.StatusBadRequest)
 		return
 	}
 
@@ -242,7 +280,7 @@ func UpdateProduct(w http.ResponseWriter, r *http.Request) {
 	var updatedProduct Product
 	err = json.NewDecoder(r.Body).Decode(&updatedProduct)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, "InvalidRequest", http.StatusBadRequest)
 		return
 	}
 
@@ -279,13 +317,13 @@ func UpdateProduct(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("### Values", values)
 	result, err := db.Exec(query, append(values, id)...)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, "InternalServerError", http.StatusInternalServerError)
 		return
 	}
 
 	rowsAffected, err := result.RowsAffected()
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, "InternalServerError", http.StatusInternalServerError)
 		return
 	}
 
@@ -299,7 +337,7 @@ func UpdateProduct(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("# Query from table products")
 	rows, err := db.Query("SELECT id,name,description,price FROM products WHERE id = $1", id)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, "InternalServerError", http.StatusInternalServerError)
 		return
 	}
 
@@ -309,7 +347,7 @@ func UpdateProduct(w http.ResponseWriter, r *http.Request) {
 		w_product := Product{}
 		err = rows.Scan(&w_product.Id, &w_product.Name, &w_product.Description, &w_product.Price)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			http.Error(w, "InternalServerError", http.StatusInternalServerError)
 			return
 		}
 		w_products.Products = append(w_products.Products, w_product)
@@ -319,7 +357,7 @@ func UpdateProduct(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	err = json.NewEncoder(w).Encode(map[string]interface{}{"product": w_products.Products[0]})
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, "InternalServerError", http.StatusInternalServerError)
 		return
 	}
 }
