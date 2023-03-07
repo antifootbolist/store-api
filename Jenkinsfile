@@ -59,10 +59,10 @@ pipeline {
                             sh 'pwd && la -la'
                             sh 'cd ghp_repo && pwd && ls -la'
                             sh "cd ghp_repo && \
-                                git config user.name ${GIT_AUTHOR_NAME}" && \
-                                git config user.email ${GIT_AUTHOR_EMAIL}" && \
+                                git config user.name ${GIT_AUTHOR_NAME} && \
+                                git config user.email ${GIT_AUTHOR_EMAIL} && \
                                 git add . && \
-                                git commit -m "Update apiDoc documentation for Store API" && \
+                                git commit -m \"Update apiDoc documentation for Store API\" && \
                                 git push -f https://${GH_NAME}:${GH_TOKEN}@${url} main"
                         }
                     }
