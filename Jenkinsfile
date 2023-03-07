@@ -53,11 +53,10 @@ pipeline {
                         def app = docker.build("${env.APIDOC_NAME}", "-f ${env.GO_APP_NAME}/Dockerfile.apidoc .")
                         
                         app.inside("--workdir=/app -u root") {
-                            sh 'pwd && ls -la && cd /app && pwd && ls -la'
-                            sh "git clone https://${GH_NAME}:${GH_TOKEN}@${url} /api/ghp_repo"
-                            sh 'ls -la /api/ghp_repo'
-                            sh 'cp -R /app/apidoc/* /api/ghp_repo/'
-                            sh 'ls -la /api/ghp_repo'
+                            sh "git clone https://${GH_NAME}:${GH_TOKEN}@${url} /app/ghp_repo"
+                            sh 'ls -la /app/ghp_repo'
+                            sh 'cp -R /app/apidoc/* /app/ghp_repo/'
+                            sh 'ls -la /app/ghp_repo'
                             sh "cd /app/ghp_repo && \
                                 git config user.name ${GIT_AUTHOR_NAME} && \
                                 git config user.email ${GIT_AUTHOR_EMAIL} && \
