@@ -64,7 +64,7 @@ pipeline {
                         sh "git config user.email ${GIT_AUTHOR_EMAIL}"
                         sh 'git add .'
                         sh 'git commit -m "Update apiDoc documentation for Store API"'
-                        sh 'git push origin main'
+                        sh 'git push https://${GH_NAME}:${GH_TOKEN}@${url} main'
                     }
                 }
             }
