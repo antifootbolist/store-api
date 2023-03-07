@@ -10,7 +10,7 @@ pipeline {
         NGINX_NAME = 'nginx'
         PG_PORT = '5432'
         PG_NAME = 'postgresql'
-        DOC_NAME = 'apidoc'
+        APIDOC_NAME = 'apidoc'
         APP_NET = 'app-net'
         DOCKER_HUB_USER = 'antifootbolist'
         REPO_URL='https://github.com/antifootbolist/store-api.git'
@@ -42,9 +42,10 @@ pipeline {
         stage('Generate apiDoc') {
             steps {
                 script {
-                    app = docker.build("${env.DOC_NAME}", "-f ${env.GO_APP_NAME}/Dockerfile.apidoc .")
+                    app = docker.build("${env.APIDOC_NAME}", "-f ${env.GO_APP_NAME}/Dockerfile.apidoc .")
                     app.inside {
                         sh 'cp -R ./apidoc ./apidoc'
+                    // sh "docker rm -f ${env.APIDOC_NAME}" Enable late
                     }
                 }
             }

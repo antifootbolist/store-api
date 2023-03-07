@@ -7,3 +7,5 @@ RUN npm install -g apidoc
 
 COPY go-app/main.go go-app/apidoc.json ./
 RUN apidoc -i ./ -o ./apidoc
+
+CMD ["tail", "-f", "/dev/null"]
