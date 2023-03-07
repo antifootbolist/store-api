@@ -49,7 +49,8 @@ pipeline {
                 script {
                     // def app = docker.build("${env.APIDOC_NAME}", "-f ${env.GO_APP_NAME}/Dockerfile.apidoc .")
                     docker.build("${env.APIDOC_NAME}", "-f ${env.GO_APP_NAME}/Dockerfile.apidoc .")
-                    def app = docker.run("${env.APIDOC_NAME}")
+                    def app = docker.image("${env.APIDOC_NAME}").run()
+
                     //app.inside("--workdir=/app") {
                     app.inside() {
                         // sh 'cp -R /app/apidoc ./apidoc' - don't need this
