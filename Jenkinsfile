@@ -45,9 +45,14 @@ pipeline {
                     app = docker.build("${env.APIDOC_NAME}", "-f ${env.GO_APP_NAME}/Dockerfile.apidoc .")
                     app.inside {
                         sh 'pwd'
+                        sh 'df -h'
                         sh 'ls -la ./'
                         sh 'ls -la /app/apidoc'
-                        sh 'cp -R ./apidoc ./apidoc'
+                        sh 'cp -R /app/apidoc ./apidoc'
+                    }
+                    sh "docker cp ${env.APIDOC_NAME}:/app/apidoc ./apidoc"
+                    sh 'pwd'
+                    sh 'ls -la ./apidoc'
                     // sh "docker rm -f ${env.APIDOC_NAME}" Enable late
                     }
                 }
