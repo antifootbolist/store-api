@@ -54,11 +54,11 @@ pipeline {
                         
                         app.inside("--workdir=/app -u root") {
                             sh 'pwd && ls -la && cd /app && pwd && ls -la'
-                            sh "cd /app && git clone https://${GH_NAME}:${GH_TOKEN}@${url} ghp_repo"
-                            sh 'cd /app && cp -R ./apidoc/* ghp_repo/'
-                            sh 'pwd && ls -la'
-                            sh 'cd ghp_repo && pwd && ls -la'
-                            sh "cd ghp_repo && \
+                            sh "git clone https://${GH_NAME}:${GH_TOKEN}@${url} /api/ghp_repo"
+                            sh 'ls -la /api/ghp_repo'
+                            sh 'cp -R /app/apidoc/* /api/ghp_repo/'
+                            sh 'ls -la /api/ghp_repo'
+                            sh "cd /app/ghp_repo && \
                                 git config user.name ${GIT_AUTHOR_NAME} && \
                                 git config user.email ${GIT_AUTHOR_EMAIL} && \
                                 git add . && \
