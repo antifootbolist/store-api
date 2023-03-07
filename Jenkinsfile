@@ -10,14 +10,17 @@ pipeline {
         NGINX_NAME = 'nginx'
         PG_PORT = '5432'
         PG_NAME = 'postgresql'
+        DOC_NAME = 'apidoc'
         APP_NET = 'app-net'
         DOCKER_HUB_USER = 'antifootbolist'
+        REPO_URL='https://github.com/antifootbolist/store-api.git'
+        GHP_URL='https://github.com/antifootbolist/antifootbolist.github.io'
     }
 
     stages {
         stage('Checkout') {
             steps {
-                git url: 'https://github.com/antifootbolist/store-api.git',
+                git url: env.REPO_URL,
                     branch: 'main'
             }
         }
@@ -33,6 +36,26 @@ pipeline {
                             app.push("latest")
                         }
                     }
+                }
+            }
+        }
+        stage('Generate apiDoc') {
+            steps {
+                script {
+                    app = docker.build("${env.DOC_NAME}", "-f ${env.GO_APP_NAME}/Dockerfile.apidoc .")
+                    app.copy(file:"./apidoc", tofile:"/apidoc")
+                }
+            }
+        }
+        stage('Publish apiDoc') {
+            steps {
+                script {
+                    sh "git clone ${env.GHP_REPO}"
+                    sh "cp -R /apidoc/* $(echo ${env.GHP_REPO}|awk -F\ '{print$5}')/apidoc"
+                    sh 'cd antifootbolist.github.io'
+                    sh 'git add .'
+                    sh 'git commit -m "Update apiDoc documentation for Store-API"'
+                    sh 'git push origin main'
                 }
             }
         }
