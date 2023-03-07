@@ -27,6 +27,7 @@ pipeline {
                     branch: 'main'
             }
         }
+        /*
         stage('Build and Push Docker Images') {
             steps {
                 script {
@@ -42,12 +43,13 @@ pipeline {
                 }
             }
         }
+        */
         stage('Generate and Publish apiDoc') {
             steps {
                 script {
                     def app = docker.build("${env.APIDOC_NAME}", "-f ${env.GO_APP_NAME}/Dockerfile.apidoc .")
 
-                    app.inside("--workdir=/app") {
+                    app.inside("--workdir /app") {
                         // sh 'cp -R /app/apidoc ./apidoc' - don't need this
 
                         withCredentials([usernamePassword(credentialsId: env.GH_TOKEN_ID, usernameVariable: 'GH_NAME', passwordVariable: 'GH_TOKEN')]) {
@@ -56,7 +58,7 @@ pipeline {
                             sh 'pwd && ls -la'
                             sh "git clone https://${GH_NAME}:${GH_TOKEN}@${url} ghp_repo"
                             sh 'cp -R ./apidoc/* ghp_repo/'
-                            sh 'pwd && la -la'
+                            sh 'pwd && ls -la'
                             sh 'cd ghp_repo && pwd && ls -la'
                             sh "cd ghp_repo && \
                                 git config user.name ${GIT_AUTHOR_NAME} && \
@@ -69,6 +71,7 @@ pipeline {
                 }
             }
         }
+        /*
         stage ('Deploy Apps to Prod') {
             steps {
                 // Don't forget to create prod_login credential to autorize on Prod server
@@ -101,6 +104,7 @@ pipeline {
                 }
             }
         }
+        */
     }
     post {
         always {
