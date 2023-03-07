@@ -47,9 +47,11 @@ pipeline {
         stage('Generate and Publish apiDoc') {
             steps {
                 script {
-                    def app = docker.build("${env.APIDOC_NAME}", "-f ${env.GO_APP_NAME}/Dockerfile.apidoc .")
-
-                    app.inside("--workdir=/app") {
+                    // def app = docker.build("${env.APIDOC_NAME}", "-f ${env.GO_APP_NAME}/Dockerfile.apidoc .")
+                    docker.build("${env.APIDOC_NAME}", "-f ${env.GO_APP_NAME}/Dockerfile.apidoc .")
+                    def app = docker.run("${env.APIDOC_NAME}")
+                    //app.inside("--workdir=/app") {
+                    app.inside() {
                         // sh 'cp -R /app/apidoc ./apidoc' - don't need this
 
                         withCredentials([usernamePassword(credentialsId: env.GH_TOKEN_ID, usernameVariable: 'GH_NAME', passwordVariable: 'GH_TOKEN')]) {
