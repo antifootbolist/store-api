@@ -51,7 +51,7 @@ pipeline {
             steps {
                 script {
                     sh "git clone ${env.GHP_REPO}"
-                    sh "cp -R /apidoc/* $(echo ${env.GHP_REPO}|awk -F\ '{print$5}')/apidoc"
+                    sh "cp -R /apidoc/* $(echo ${env.GHP_REPO}|awk -F\ '{print\$5}')/apidoc"
                     sh 'cd antifootbolist.github.io'
                     sh 'git add .'
                     sh 'git commit -m "Update apiDoc documentation for Store-API"'
