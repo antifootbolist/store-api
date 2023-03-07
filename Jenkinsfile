@@ -53,7 +53,9 @@ pipeline {
             steps {
                 script {
                     sh "git clone ${env.GHP_URL}"
-                    sh '''cp -R /apidoc/* $(echo ${env.GHP_URL}|awk -F\\ '{print$5}')/apidoc'''
+                    // TODO: Fix awk parsing issue
+                    //sh '''cp -R ./apidoc/* $(echo ${env.GHP_URL}|awk -F\\ '{print$5}')/apidoc'''
+                    sh 'cp -R ./apidoc/* antifootbolist.github.io/apidoc'
                     sh 'cd antifootbolist.github.io'
                     sh 'git add .'
                     sh 'git commit -m "Update apiDoc documentation for Store-API"'
