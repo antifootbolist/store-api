@@ -54,7 +54,6 @@ pipeline {
                     sh 'pwd'
                     sh 'ls -la ./apidoc'
                     // sh "docker rm -f ${env.APIDOC_NAME}" Enable late
-                    }
                 }
             }
         }
