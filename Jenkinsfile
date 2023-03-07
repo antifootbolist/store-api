@@ -2,14 +2,19 @@ pipeline {
     agent any
 
     environment {
-        // Mandatory to change     
+        // Сhange the required parameters     
         PROD_IP = '130.193.36.79'
         DOCKER_HUB_USER = 'antifootbolist'
         REPO_URL='https://github.com/antifootbolist/store-api.git'
         GHP_URL='https://github.com/antifootbolist/antifootbolist.github.io.git'
-        GH_TOKEN_ID='antifootbolist-github-access-token'
         GIT_AUTHOR_NAME = "Alexey Borodulin"
         GIT_AUTHOR_EMAIL = "antifootbolist@gmail.com"
+        
+        // Confugure on Jenkins and change
+        GH_TOKEN_ID='antifootbolist-github-access-token'
+        DOCKER_HUB_LOGIN='docker_hub_login'
+        PROD_LOGIN='prod_login'
+
 
         // Optional to change
         GO_APP_PORT = '8080'
@@ -35,8 +40,8 @@ pipeline {
                     def app_names = [env.PG_NAME, env.GO_APP_NAME, env.NGINX_NAME]
                     for (app_name in app_names) {
                         app = docker.build("${DOCKER_HUB_USER}/${app_name}", "-f ${app_name}/Dockerfile .")
-                        // Don't forget to create docker_hub_login credential to autorize on Docker Hub
-                        docker.withRegistry('https://registry.hub.docker.com', 'docker_hub_login') {
+                        docker.withRegistry('https://registry.hub.docker.com', env.DOCKER_HUB_LOGIN) {
+                        //docker.withRegistry('https://registry.hub.docker.com', 'docker_hub_login') {
                             app.push("${env.BUILD_NUMBER}")
                             app.push("latest")
                         }
@@ -54,9 +59,7 @@ pipeline {
                         
                         app.inside("--workdir=/app -u root") {
                             sh "git clone https://${GH_NAME}:${GH_TOKEN}@${url} /app/ghp_repo"
-                            sh 'ls -la /app/ghp_repo'
                             sh 'cp -R /app/apidoc/* /app/ghp_repo/'
-                            sh 'ls -la /app/ghp_repo'
                             try {
                                 sh "cd /app/ghp_repo && \
                                 git config user.name ${GIT_AUTHOR_NAME} && \
@@ -75,8 +78,7 @@ pipeline {
         }
         stage ('Deploy API to Prod') {
             steps {
-                // Don't forget to create prod_login credential to autorize on Prod server
-                withCredentials ([usernamePassword(credentialsId: 'prod_login', usernameVariable: 'USERNAME', passwordVariable: 'USERPASS')]) {
+                withCredentials ([usernamePassword(credentialsId: env.PROD_LOGIN, usernameVariable: 'USERNAME', passwordVariable: 'USERPASS')]) {
                     script {
                         def app_names = [env.PG_NAME, env.GO_APP_NAME, env.NGINX_NAME]
                         for (app_name in app_names) {
