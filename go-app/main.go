@@ -132,7 +132,7 @@ func getProducts(w http.ResponseWriter, r *http.Request) {
  * @apiGroup Products
  * @apiPermission user
  *
- * @apiParam {Number} id Products unique ID.
+ * @apiParam {Number} id Products ID.
  *
  * @apiSuccess {Number} id Products unique ID.
  * @apiSuccess {String} name Name of the Product.
@@ -165,7 +165,7 @@ func getProducts(w http.ResponseWriter, r *http.Request) {
  * @apiGroup Products
  * @apiPermission admin
  *
- * @apiParam {Number} id Products unique ID.
+ * @apiParam {Number} id Products ID.
  *
  * @apiParam {String} [name] Name of the Product.
  * @apiParam {String} [description] Description of the Product.
