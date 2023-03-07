@@ -13,8 +13,11 @@ pipeline {
         APIDOC_NAME = 'apidoc'
         APP_NET = 'app-net'
         DOCKER_HUB_USER = 'antifootbolist'
-        REPO_URL='https://github.com/antifootbolist/store-api'
-        GHP_URL='https://github.com/antifootbolist/antifootbolist.github.io'
+        REPO_URL='https://github.com/antifootbolist/store-api.git'
+        GHP_URL='https://github.com/antifootbolist/antifootbolist.github.io.git'
+        GH_TOKEN_ID='antifootbolist-github-access-token'
+        GH_AUTHOR_NAME = "Alexey Borodulin"
+        GH_AUTHOR_EMAIL = "antifootbolist@gmail.com"
     }
 
     stages {
@@ -51,15 +54,17 @@ pipeline {
         }
         stage('Publish apiDoc') {
             steps {
-                script {
-                    sh "git clone ${env.GHP_URL}"
-                    // TODO: Fix awk parsing issue
-                    //sh '''cp -R ./apidoc/* $(echo ${env.GHP_URL}|awk -F\\ '{print$5}')/apidoc'''
-                    sh 'cp -R ./apidoc/* antifootbolist.github.io/'
-                    sh 'cd antifootbolist.github.io'
-                    sh 'git add .'
-                    sh 'git commit -m "Update apiDoc documentation for Store API"'
-                    sh 'git push origin main'
+                withCredentials([usernamePassword(credentialsId: env.GH_TOKEN_ID, usernameVariable: 'GH_NAME', passwordVariable: 'GH_TOKEN')]) {
+                    script {
+                        sh "git clone --username ${GH_NAME} --password ${GH_TOKEN} ${env.GHP_URL}"
+                        // TODO: Fix awk parsing issue and remove antifootbolist.github.io from script
+                        //sh '''cp -R ./apidoc/* $(echo ${env.GHP_URL}|awk -F\\ '{print$5}')/apidoc'''
+                        sh 'cp -R ./apidoc/* antifootbolist.github.io/'
+                        sh 'cd antifootbolist.github.io'
+                        sh 'git add .'
+                        sh 'git commit -m "Update apiDoc documentation for Store API" --author="${GIT_AUTHOR_NAME} <${GIT_AUTHOR_EMAIL}>"'
+                        sh 'git push origin main'
+                    }
                 }
             }
         }
