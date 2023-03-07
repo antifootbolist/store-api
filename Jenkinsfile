@@ -2,8 +2,16 @@ pipeline {
     agent any
 
     environment {
-        // Need to change
+        // Mandatory to change     
         PROD_IP = '130.193.36.79'
+        DOCKER_HUB_USER = 'antifootbolist'
+        REPO_URL='https://github.com/antifootbolist/store-api.git'
+        GHP_URL='https://github.com/antifootbolist/antifootbolist.github.io.git'
+        GH_TOKEN_ID='antifootbolist-github-access-token'
+        GIT_AUTHOR_NAME = "Alexey Borodulin"
+        GIT_AUTHOR_EMAIL = "antifootbolist@gmail.com"
+
+        // Optional to change
         GO_APP_PORT = '8080'
         GO_APP_NAME = 'go-app'
         NGINX_PORT = '80'
@@ -12,12 +20,6 @@ pipeline {
         PG_NAME = 'postgresql'
         APIDOC_NAME = 'apidoc'
         APP_NET = 'app-net'
-        DOCKER_HUB_USER = 'antifootbolist'
-        REPO_URL='https://github.com/antifootbolist/store-api.git'
-        GHP_URL='https://github.com/antifootbolist/antifootbolist.github.io.git'
-        GH_TOKEN_ID='antifootbolist-github-access-token'
-        GIT_AUTHOR_NAME = "Alexey Borodulin"
-        GIT_AUTHOR_EMAIL = "antifootbolist@gmail.com"
     }
 
     stages {
@@ -27,7 +29,6 @@ pipeline {
                     branch: 'main'
             }
         }
-        /*
         stage('Build and Push Docker Images') {
             steps {
                 script {
@@ -43,7 +44,6 @@ pipeline {
                 }
             }
         }
-        */
         stage('Generate and Publish apiDoc') {
             steps {
                 script {
@@ -73,8 +73,7 @@ pipeline {
                 }
             }
         }
-        /*
-        stage ('Deploy Apps to Prod') {
+        stage ('Deploy API to Prod') {
             steps {
                 // Don't forget to create prod_login credential to autorize on Prod server
                 withCredentials ([usernamePassword(credentialsId: 'prod_login', usernameVariable: 'USERNAME', passwordVariable: 'USERPASS')]) {
@@ -106,7 +105,6 @@ pipeline {
                 }
             }
         }
-        */
     }
     post {
         always {
