@@ -57,12 +57,17 @@ pipeline {
                             sh 'ls -la /app/ghp_repo'
                             sh 'cp -R /app/apidoc/* /app/ghp_repo/'
                             sh 'ls -la /app/ghp_repo'
-                            sh "cd /app/ghp_repo && \
+                            try {
+                                sh "cd /app/ghp_repo && \
                                 git config user.name ${GIT_AUTHOR_NAME} && \
                                 git config user.email ${GIT_AUTHOR_EMAIL} && \
                                 git add . && \
                                 git commit -m \"Update apiDoc for build #${env.BUILD_NUMBER}\" && \
                                 git push -f https://${GH_NAME}:${GH_TOKEN}@${url} main"
+                            }
+                            catch (err) {
+                                echo: 'Skipping apiDoc update. Reason: $err'
+                            } 
                         }
                     }
                 }
