@@ -95,5 +95,10 @@ pipeline {
                 }
             }
         }
+        stage('Cleanup') {
+            steps {
+                deleteDir()
+            }
+        }
     }
 }
