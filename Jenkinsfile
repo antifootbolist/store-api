@@ -55,10 +55,10 @@ pipeline {
                     sh "git clone ${env.GHP_URL}"
                     // TODO: Fix awk parsing issue
                     //sh '''cp -R ./apidoc/* $(echo ${env.GHP_URL}|awk -F\\ '{print$5}')/apidoc'''
-                    sh 'cp -R ./apidoc/* antifootbolist.github.io/apidoc'
+                    sh 'cp -R ./apidoc/* antifootbolist.github.io/'
                     sh 'cd antifootbolist.github.io'
                     sh 'git add .'
-                    sh 'git commit -m "Update apiDoc documentation for Store-API"'
+                    sh 'git commit -m "Update apiDoc documentation for Store API"'
                     sh 'git push origin main'
                 }
             }
