@@ -16,8 +16,8 @@ pipeline {
         REPO_URL='https://github.com/antifootbolist/store-api.git'
         GHP_URL='https://github.com/antifootbolist/antifootbolist.github.io.git'
         GH_TOKEN_ID='antifootbolist-github-access-token'
-        GH_AUTHOR_NAME = "Alexey Borodulin"
-        GH_AUTHOR_EMAIL = "antifootbolist@gmail.com"
+        GIT_AUTHOR_NAME = "Alexey Borodulin"
+        GIT_AUTHOR_EMAIL = "antifootbolist@gmail.com"
     }
 
     stages {
@@ -56,13 +56,14 @@ pipeline {
             steps {
                 withCredentials([usernamePassword(credentialsId: env.GH_TOKEN_ID, usernameVariable: 'GH_NAME', passwordVariable: 'GH_TOKEN')]) {
                     script {
-                        sh "git clone --username ${GH_NAME} --password ${GH_TOKEN} ${env.GHP_URL}"
-                        // TODO: Fix awk parsing issue and remove antifootbolist.github.io from script
-                        //sh '''cp -R ./apidoc/* $(echo ${env.GHP_URL}|awk -F\\ '{print$5}')/apidoc'''
-                        sh 'cp -R ./apidoc/* antifootbolist.github.io/'
-                        sh 'cd antifootbolist.github.io'
+                        def url = sh(script: "echo ${env.GHP_URL} | sed 's/.*@//'", returnStdout: true).trim()
+                        sh "git clone https://${GH_NAME}:${GH_TOKEN}@${url} ghp_repo"
+                        sh 'cp -R ./apidoc/* ghp_repo/'
+                        sh 'cd ghp_repo'
+                        sh "git config user.name ${GIT_AUTHOR_NAME}"
+                        sh "git config user.email ${GIT_AUTHOR_EMAIL}"
                         sh 'git add .'
-                        sh 'git commit -m "Update apiDoc documentation for Store API" --author="${GIT_AUTHOR_NAME} <${GIT_AUTHOR_EMAIL}>"'
+                        sh 'git commit -m "Update apiDoc documentation for Store API"'
                         sh 'git push origin main'
                     }
                 }
