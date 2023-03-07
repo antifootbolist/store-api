@@ -43,7 +43,9 @@ pipeline {
             steps {
                 script {
                     app = docker.build("${env.DOC_NAME}", "-f ${env.GO_APP_NAME}/Dockerfile.apidoc .")
-                    app.copy(file:"./apidoc", tofile:"./apidoc")
+                    app.inside {
+                        sh 'cp -R ./apidoc ./apidoc'
+                    }
                 }
             }
         }
