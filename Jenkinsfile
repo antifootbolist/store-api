@@ -10,7 +10,7 @@ pipeline {
         GIT_AUTHOR_NAME = "Alexey Borodulin"
         GIT_AUTHOR_EMAIL = "antifootbolist@gmail.com"
         
-        // Confugure on Jenkins and change
+        // Configure on Jenkins and change
         GH_TOKEN_ID='antifootbolist-github-access-token'
         DOCKER_HUB_LOGIN='docker_hub_login'
         PROD_LOGIN='prod_login'
@@ -41,7 +41,6 @@ pipeline {
                     for (app_name in app_names) {
                         app = docker.build("${DOCKER_HUB_USER}/${app_name}", "-f ${app_name}/Dockerfile .")
                         docker.withRegistry('https://registry.hub.docker.com', env.DOCKER_HUB_LOGIN) {
-                        //docker.withRegistry('https://registry.hub.docker.com', 'docker_hub_login') {
                             app.push("${env.BUILD_NUMBER}")
                             app.push("latest")
                         }
