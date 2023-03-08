@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"path"
 	"strconv"
 
@@ -30,7 +31,18 @@ func main() {
 
 	var err error
 	// Establish connection to container DB
-	db, err = sql.Open("postgres", "host=postgresql user=user-api password=qwe123 dbname=store_api sslmode=disable")
+
+	dbParams := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
+		os.Getenv("DB_HOST"),
+		os.Getenv("DB_PORT"),
+		os.Getenv("DB_USER"),
+		os.Getenv("DB_PASSWORD"),
+		os.Getenv("DB_NAME"),
+		os.Getenv("DB_SSLMODE"),
+	)
+
+	db, err = sql.Open("postgres", dbParams)
+
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -38,27 +50,16 @@ func main() {
 	defer db.Close()
 
 	// API handlers
-	http.HandleFunc("/api/v1/products", GetProducts)
-	http.HandleFunc("/api/v1/product/", GetUpdateDeleteProduct)
+	http.HandleFunc("/api/v1/product", GetProducts)
+	http.HandleFunc("/api/v1/product/list/", ListProduct)
+	http.HandleFunc("/api/v1/product/update/", UpdateProduct)
 
 	// Run server on port 8080
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
 
-func GetUpdateDeleteProduct(w http.ResponseWriter, r *http.Request) {
-	// TODO: Add DELETE method
-	if r.Method == "GET" {
-		GetProduct(w, r)
-	} else if r.Method == "POST" {
-		UpdateProduct(w, r)
-	} else {
-		http.Error(w, "InvalidRequest", http.StatusBadRequest)
-		return
-	}
-}
-
 /**
-* @api {get} /products Get list of products
+* @api {get} /product Get list of all products
  * @apiName GetProducts
  * @apiGroup Products
  * @apiPermission user
@@ -138,8 +139,8 @@ func GetProducts(w http.ResponseWriter, r *http.Request) {
 }
 
 /**
-* @api {get} /product/:id Get Product's Info
- * @apiName GetProduct
+* @api {get} /product/list/:id Get Product's Info
+ * @apiName ListProduct
  * @apiGroup Products
  * @apiPermission user
  *
@@ -186,7 +187,7 @@ func GetProducts(w http.ResponseWriter, r *http.Request) {
  *     }
 */
 
-func GetProduct(w http.ResponseWriter, r *http.Request) {
+func ListProduct(w http.ResponseWriter, r *http.Request) {
 
 	// Parse the product ID from the URL parameter
 	id, err := strconv.Atoi(path.Base(r.URL.Path))
@@ -196,6 +197,7 @@ func GetProduct(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Query the database to get the product with the given ID
+	fmt.Println("# Query from table products")
 	row := db.QueryRow("SELECT id,name,description,price FROM products WHERE id = $1", id)
 
 	// Initialize a new product
@@ -218,7 +220,7 @@ func GetProduct(w http.ResponseWriter, r *http.Request) {
 }
 
 /**
-* @api {post} /product/:id Update Product's Info
+* @api {post} /product/update/:id Update Product's Info
  * @apiName UpdateProduct
  * @apiGroup Products
  * @apiPermission admin
@@ -313,8 +315,6 @@ func UpdateProduct(w http.ResponseWriter, r *http.Request) {
 
 	// Update the product in the database
 	fmt.Println("# Update product in table products")
-	fmt.Println("### Query", query)
-	fmt.Println("### Values", values)
 	result, err := db.Exec(query, append(values, id)...)
 	if err != nil {
 		http.Error(w, "InternalServerError", http.StatusInternalServerError)
