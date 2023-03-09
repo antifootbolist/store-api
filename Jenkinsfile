@@ -2,14 +2,12 @@ pipeline {
     agent any
 
     environment {
-        // Сhange the required parameters     
-        // PROD_IP = '130.193.36.79'
+        // Сhange the required parameters
         DOCKER_HUB_USER = 'antifootbolist'
         REPO_URL='https://github.com/antifootbolist/store-api.git'
         GHP_URL='https://github.com/antifootbolist/antifootbolist.github.io.git'
         GIT_AUTHOR_NAME = "Alexey Borodulin"
         GIT_AUTHOR_EMAIL = "antifootbolist@gmail.com"
-        
         
         // Create variable in Jenkins
         // PROD_IP - IP address of server where we deploy containers
@@ -17,8 +15,6 @@ pipeline {
         // Configure on Jenkins and change
         GH_TOKEN_ID='antifootbolist-github-access-token'
         DOCKER_HUB_LOGIN='docker_hub_login'
-        PROD_LOGIN='prod_login'
-
 
         // Optional to change
         GO_APP_PORT = '8080'
@@ -79,46 +75,6 @@ pipeline {
                 }
             }
         }
-        /*
-        stage ('Deploy API to Prod') {
-            steps {
-                withCredentials ([usernamePassword(credentialsId: env.PROD_LOGIN, usernameVariable: 'USERNAME', passwordVariable: 'USERPASS')]) {
-                    script {
-                        def app_names = [env.PG_NAME, env.GO_APP_NAME, env.NGINX_NAME]
-                        for (app_name in app_names) {
-                            if (app_name == env.PG_NAME) {
-                                sh 'echo "Deploying PostgreSQL server"'
-                                app_port = env.PG_PORT
-                            }
-                            if (app_name == env.GO_APP_NAME) {
-                                sh 'echo "Deploying Go application"'
-                                app_port = env.GO_APP_PORT
-                                sh "sshpass -p '${USERPASS}' scp -o StrictHostKeyChecking=no ${app_name}/env.list ${USERNAME}@${PROD_IP}:/home/${USERNAME}/env.list"
-                            }
-                            if (app_name == env.NGINX_NAME) {
-                                sh 'echo "Deploying Nginx Web server"'
-                                app_port = env.NGINX_PORT
-                            }
-                            sh "sshpass -p '${USERPASS}' -v ssh -o StrictHostKeyChecking=no ${USERNAME}@${PROD_IP} \"docker pull ${DOCKER_HUB_USER}/${app_name}:${env.BUILD_NUMBER}\""
-                            try {
-                                sh "sshpass -p '${USERPASS}' -v ssh -o StrictHostKeyChecking=no ${USERNAME}@${PROD_IP} \"docker stop ${app_name}\""
-                                sh "sshpass -p '${USERPASS}' -v ssh -o StrictHostKeyChecking=no ${USERNAME}@${PROD_IP} \"docker rm ${app_name}\""
-                            } catch (err) {
-                                echo: 'caught error: $err'
-                            }
-                            if (app_name == env.GO_APP_NAME) {
-                                sh "sshpass -p '${USERPASS}' -v ssh -o StrictHostKeyChecking=no ${USERNAME}@${PROD_IP} \"docker run -d --restart always --name ${app_name} --network ${APP_NET} -p ${app_port}:${app_port} --env-file /home/${USERNAME}/env.list ${DOCKER_HUB_USER}/${app_name}:${env.BUILD_NUMBER}\""
-                            } else {
-                                sh "sshpass -p '${USERPASS}' -v ssh -o StrictHostKeyChecking=no ${USERNAME}@${PROD_IP} \"docker run -d --restart always --name ${app_name} --network ${APP_NET} -p ${app_port}:${app_port} ${DOCKER_HUB_USER}/${app_name}:${env.BUILD_NUMBER}\""
-                            }
-
-                            // sh "sshpass -p '${USERPASS}' -v ssh -o StrictHostKeyChecking=no ${USERNAME}@${PROD_IP} \"docker run -d --restart always --name ${app_name} --network ${APP_NET} -p ${app_port}:${app_port} ${DOCKER_HUB_USER}/${app_name}:${env.BUILD_NUMBER}\""
-                        }
-                    }
-                }
-            }
-        }
-        */
         stage ('Deploy API to Prod') {
             steps {
                 script {
