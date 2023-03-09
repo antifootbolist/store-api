@@ -137,17 +137,17 @@ pipeline {
                             sh 'echo "Deploying Nginx Web server"'
                             app_port = env.NGINX_PORT
                         }
-                        sh "ssh -o StrictHostKeyChecking=no ${PROD_IP} \"docker pull ${DOCKER_HUB_USER}/${app_name}:${env.BUILD_NUMBER}\""
+                        sh "ssh -o StrictHostKeyChecking=no ${env.PROD_IP} \"docker pull ${DOCKER_HUB_USER}/${app_name}:${env.BUILD_NUMBER}\""
                         try {
-                            sh "ssh -o StrictHostKeyChecking=no ${PROD_IP} \"docker stop ${app_name}\""
-                            sh "ssh -o StrictHostKeyChecking=no ${PROD_IP} \"docker rm ${app_name}\""
+                            sh "ssh -o StrictHostKeyChecking=no ${env.PROD_IP} \"docker stop ${app_name}\""
+                            sh "ssh -o StrictHostKeyChecking=no ${env.PROD_IP} \"docker rm ${app_name}\""
                         } catch (err) {
                             echo: 'caught error: $err'
                         }
                         if (app_name == env.GO_APP_NAME) {
-                            sh "ssh -o StrictHostKeyChecking=no ${PROD_IP} \"docker run -d --restart always --name ${app_name} --network ${APP_NET} -p ${app_port}:${app_port} --env-file /home/${USERNAME}/env.list ${DOCKER_HUB_USER}/${app_name}:${env.BUILD_NUMBER}\""
+                            sh "ssh -o StrictHostKeyChecking=no ${env.PROD_IP} \"docker run -d --restart always --name ${app_name} --network ${APP_NET} -p ${app_port}:${app_port} --env-file /home/${USERNAME}/env.list ${DOCKER_HUB_USER}/${app_name}:${env.BUILD_NUMBER}\""
                         } else {
-                            sh "ssh -o StrictHostKeyChecking=no ${PROD_IP} \"docker run -d --restart always --name ${app_name} --network ${APP_NET} -p ${app_port}:${app_port} ${DOCKER_HUB_USER}/${app_name}:${env.BUILD_NUMBER}\""
+                            sh "ssh -o StrictHostKeyChecking=no ${env.PROD_IP} \"docker run -d --restart always --name ${app_name} --network ${APP_NET} -p ${app_port}:${app_port} ${DOCKER_HUB_USER}/${app_name}:${env.BUILD_NUMBER}\""
                         }
                     }
                 }
