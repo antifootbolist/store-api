@@ -109,6 +109,11 @@ func main() {
 */
 
 func GetProducts(w http.ResponseWriter, r *http.Request) {
+	// Check that method is allowed
+	if r.Method != "GET" {
+		http.Error(w, "InvalidRequest", http.StatusBadRequest)
+		return
+	}
 
 	w_products := Products{}
 
@@ -188,6 +193,11 @@ func GetProducts(w http.ResponseWriter, r *http.Request) {
 */
 
 func ListProduct(w http.ResponseWriter, r *http.Request) {
+	// Check that method is allowed
+	if r.Method != "GET" {
+		http.Error(w, "InvalidRequest", http.StatusBadRequest)
+		return
+	}
 
 	// Parse the product ID from the URL parameter
 	id, err := strconv.Atoi(path.Base(r.URL.Path))
@@ -270,6 +280,11 @@ func ListProduct(w http.ResponseWriter, r *http.Request) {
 */
 
 func UpdateProduct(w http.ResponseWriter, r *http.Request) {
+	// Check that method is allowed
+	if r.Method != "POST" {
+		http.Error(w, "InvalidRequest", http.StatusBadRequest)
+		return
+	}
 
 	// Parse the product ID from the URL parameter
 	id, err := strconv.Atoi(path.Base(r.URL.Path))
