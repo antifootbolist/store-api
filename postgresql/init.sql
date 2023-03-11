@@ -1,3 +1,3 @@
 CREATE DATABASE store_api;
 CREATE USER "user-api" WITH PASSWORD 'qwe123';
-GRANT ALL PRIVILEGES ON DATABASE store_api TO "store-api";
+GRANT ALL PRIVILEGES ON DATABASE store_api TO "user-api";
