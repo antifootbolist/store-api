@@ -70,9 +70,12 @@ func main() {
 }
 
 func migrate(db *gorm.DB) {
-	// AutoMigrate will automatically create the table based on the struct
-	db.AutoMigrate(&Product{})
-	db.AutoMigrate(&Order{})
+	// Set table options for products
+	db.Set("gorm:table_options", "GRANT ALL PRIVILEGES ON TABLE products TO store-api")
+	db.Set("gorm:table_options", "GRANT ALL PRIVILEGES ON TABLE orders TO store-api")
+
+	// Migrate the schema
+	db.AutoMigrate(&Product{}, &Order{})
 
 	// If TEST_DATA is set to true, insert test data
 	testData, err := strconv.ParseBool(os.Getenv("TEST_DATA"))
