@@ -71,8 +71,9 @@ func main() {
 
 func migrate(db *gorm.DB) {
 	// Set table options for products
-	db.Set("gorm:table_options", "GRANT ALL PRIVILEGES ON TABLE products TO store-api")
-	db.Set("gorm:table_options", "GRANT ALL PRIVILEGES ON TABLE orders TO store-api")
+	db.Set("gorm:table_options", "GRANT ALL PRIVILEGES ON TABLE products TO user-api")
+	//db.Set("gorm:table_options", "ALTER TABLE products OWNER TO user-api)
+	db.Set("gorm:table_options", "GRANT ALL PRIVILEGES ON TABLE orders TO user-api")
 
 	// Migrate the schema
 	db.AutoMigrate(&Product{}, &Order{})
@@ -83,7 +84,7 @@ func migrate(db *gorm.DB) {
 		testData = false
 	}
 	if testData {
-		fmt.Println("Inserting test data...")
+		fmt.Println("Inserting test data ...")
 		db.Create(&Product{Id: 1, Name: "iPhone", Description: "iPhone 14", Price: 100})
 		db.Create(&Product{Id: 2, Name: "iPhone", Description: "iPhone 14 PRO MAX", Price: 200})
 		db.Create(&Product{Id: 3, Name: "Samsung", Description: "Samsung Galaxy S23 Ultra", Price: 300})
