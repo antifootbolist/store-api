@@ -27,6 +27,19 @@ type Products struct {
 	Products []Product `json:"products"`
 }
 
+/* Testing migration
+type Order struct {
+	Id      int    `json:"id" gorm:"primaryKey"`
+	Name    string `json:"name"`
+	Product string `json:"product"`
+	Price   int    `json:"price"`
+}
+
+type Orders struct {
+	Orders []Order `json:"orders"`
+}
+*/
+
 func main() {
 	fmt.Println("Starting server on port 8080 ...")
 
@@ -59,8 +72,12 @@ func main() {
 }
 
 func migrate(db *gorm.DB) {
-	// AutoMigrate will automatically create the table based on the struct
+	// Migrate the schema
 	db.AutoMigrate(&Product{})
+
+	/* Testing migration
+	db.AutoMigrate(&Order{})
+	*/
 
 	// If TEST_DATA is set to true, insert test data
 	testData, err := strconv.ParseBool(os.Getenv("TEST_DATA"))
@@ -68,10 +85,17 @@ func migrate(db *gorm.DB) {
 		testData = false
 	}
 	if testData {
-		fmt.Println("Inserting test data...")
+		fmt.Println("Inserting test data ...")
 		db.Create(&Product{Id: 1, Name: "iPhone", Description: "iPhone 14", Price: 100})
 		db.Create(&Product{Id: 2, Name: "iPhone", Description: "iPhone 14 PRO MAX", Price: 200})
 		db.Create(&Product{Id: 3, Name: "Samsung", Description: "Samsung Galaxy S23 Ultra", Price: 300})
+
+		/* Testing migration
+		db.Create(&Order{Id: 1, Name: "John", Product: "iPhone", Price: 1000})
+		db.Create(&Order{Id: 2, Name: "Mary", Product: "Samsung", Price: 800})
+		db.Create(&Order{Id: 3, Name: "Bob", Product: "iPhone", Price: 1200})
+		*/
+
 		fmt.Println("Test data inserted.")
 	}
 }
