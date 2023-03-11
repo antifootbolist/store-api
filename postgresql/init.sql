@@ -11,3 +11,4 @@ CREATE TABLE products (
 
 CREATE USER "user-api" WITH PASSWORD 'qwe123';
 GRANT ALL PRIVILEGES ON TABLE products TO "user-api";
+ALTER TABLE products OWNER TO "user-api";
