@@ -72,7 +72,7 @@ func main() {
 func migrate(db *gorm.DB) {
 	// Set table options for products
 	db.Set("gorm:table_options", "GRANT ALL PRIVILEGES ON TABLE products TO user-api")
-	//db.Set("gorm:table_options", "ALTER TABLE products OWNER TO user-api)
+	db.Set("gorm:table_options", "ALTER TABLE products OWNER TO user-api")
 	db.Set("gorm:table_options", "GRANT ALL PRIVILEGES ON TABLE orders TO user-api")
 
 	// Migrate the schema
@@ -85,12 +85,12 @@ func migrate(db *gorm.DB) {
 	}
 	if testData {
 		fmt.Println("Inserting test data ...")
-		db.Create(&Product{Id: 1, Name: "iPhone", Description: "iPhone 14", Price: 100})
-		db.Create(&Product{Id: 2, Name: "iPhone", Description: "iPhone 14 PRO MAX", Price: 200})
-		db.Create(&Product{Id: 3, Name: "Samsung", Description: "Samsung Galaxy S23 Ultra", Price: 300})
-		db.Create(&Order{Id: 1, Name: "John", Product: "iPhone", Price: 1000})
-		db.Create(&Order{Id: 2, Name: "Mary", Product: "Samsung", Price: 800})
-		db.Create(&Order{Id: 3, Name: "Bob", Product: "iPhone", Price: 1200})
+		//db.Create(&Product{Id: 1, Name: "iPhone", Description: "iPhone 14", Price: 100})
+		//db.Create(&Product{Id: 2, Name: "iPhone", Description: "iPhone 14 PRO MAX", Price: 200})
+		//db.Create(&Product{Id: 3, Name: "Samsung", Description: "Samsung Galaxy S23 Ultra", Price: 300})
+		//db.Create(&Order{Id: 1, Name: "John", Product: "iPhone", Price: 1000})
+		//db.Create(&Order{Id: 2, Name: "Mary", Product: "Samsung", Price: 800})
+		//db.Create(&Order{Id: 3, Name: "Bob", Product: "iPhone", Price: 1200})
 		fmt.Println("Test data inserted.")
 	}
 }
