@@ -121,6 +121,7 @@ func GetProducts(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("# Query from table products")
 	rows, err := db.Query("SELECT id,name,description,price FROM products")
 	if err != nil {
+		fmt.Println("Failed in db.Query to DB")
 		http.Error(w, "InternalServerError", http.StatusInternalServerError)
 		return
 	}
@@ -332,6 +333,7 @@ func UpdateProduct(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("# Update product in table products")
 	result, err := db.Exec(query, append(values, id)...)
 	if err != nil {
+		fmt.Println("Failed in db.Exec to DB")
 		http.Error(w, "InternalServerError", http.StatusInternalServerError)
 		return
 	}
@@ -352,6 +354,7 @@ func UpdateProduct(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("# Query from table products")
 	rows, err := db.Query("SELECT id,name,description,price FROM products WHERE id = $1", id)
 	if err != nil {
+		fmt.Println("Failed in db.Query to DB")
 		http.Error(w, "InternalServerError", http.StatusInternalServerError)
 		return
 	}
