@@ -11,6 +11,7 @@ pipeline {
         
         // Create variable in Jenkins
         // PROD_IP - IP address of server where we deploy containers
+        // STAGE_IP - IP address of server where we deploy containers
         
         // Configure on Jenkins and change
         GH_TOKEN_ID='antifootbolist-github-access-token'
@@ -28,13 +29,15 @@ pipeline {
     }
 
     stages {
+        /*
         stage('Checkout') {
             steps {
                 git url: env.REPO_URL,
                     branch: 'main'
             }
         }
-        stage('Build and Push Docker Images') {
+        */
+        stage('Build') {
             steps {
                 script {
                     def app_names = [env.PG_NAME, env.GO_APP_NAME, env.NGINX_NAME]
@@ -48,7 +51,10 @@ pipeline {
                 }
             }
         }
-        stage('Generate and Publish apiDoc') {
+        stage('apiDoc') {
+            when {
+                branch 'main'
+            }
             steps {
                 script {
                     withCredentials([usernamePassword(credentialsId: env.GH_TOKEN_ID, usernameVariable: 'GH_NAME', passwordVariable: 'GH_TOKEN')]) {
@@ -75,9 +81,18 @@ pipeline {
                 }
             }
         }
-        stage ('Deploy API to Prod') {
+        stage ('Deploy') {
             steps {
                 script {
+                    // Setting variables depending on the branch
+                    if (env.BRANCH_NAME == 'main') {
+                        SERVER_IP = env.PROD_IP
+                        TEST_DATA = 'False'
+                    } else {
+                        SERVER_IP = env.STAGE_IP
+                        TEST_DATA = 'True'
+                    }
+                    
                     def app_names = [env.PG_NAME, env.GO_APP_NAME, env.NGINX_NAME]
                     for (app_name in app_names) {
                         if (app_name == env.PG_NAME) {
@@ -87,23 +102,23 @@ pipeline {
                         if (app_name == env.GO_APP_NAME) {
                             sh 'echo "Deploying Go application"'
                             app_port = env.GO_APP_PORT
-                            sh "scp -o StrictHostKeyChecking=no ${app_name}/env.list ${env.PROD_IP}:./env.list"
+                            sh "scp -o StrictHostKeyChecking=no ${app_name}/env.list ${SERVER_IP}:./env.list"
                         }
                         if (app_name == env.NGINX_NAME) {
                             sh 'echo "Deploying Nginx Web server"'
                             app_port = env.NGINX_PORT
                         }
-                        sh "ssh -o StrictHostKeyChecking=no ${env.PROD_IP} \"docker pull ${DOCKER_HUB_USER}/${app_name}:${env.BUILD_NUMBER}\""
+                        sh "ssh -o StrictHostKeyChecking=no ${SERVER_IP} \"docker pull ${DOCKER_HUB_USER}/${app_name}:${env.BUILD_NUMBER}\""
                         try {
-                            sh "ssh -o StrictHostKeyChecking=no ${env.PROD_IP} \"docker stop ${app_name}\""
-                            sh "ssh -o StrictHostKeyChecking=no ${env.PROD_IP} \"docker rm ${app_name}\""
+                            sh "ssh -o StrictHostKeyChecking=no ${SERVER_IP} \"docker stop ${app_name}\""
+                            sh "ssh -o StrictHostKeyChecking=no ${SERVER_IP} \"docker rm ${app_name}\""
                         } catch (err) {
                             echo: 'caught error: $err'
                         }
                         if (app_name == env.GO_APP_NAME) {
-                            sh "ssh -o StrictHostKeyChecking=no ${env.PROD_IP} \"docker run -d --restart always --name ${app_name} --network ${APP_NET} -p ${app_port}:${app_port} --env-file ./env.list ${DOCKER_HUB_USER}/${app_name}:${env.BUILD_NUMBER}\""
+                            sh "ssh -o StrictHostKeyChecking=no ${SERVER_IP} \"docker run -d --restart always --name ${app_name} --network ${APP_NET} -p ${app_port}:${app_port} --env-file ./env.list -e TEST_DATA=${TEST_DATA} ${DOCKER_HUB_USER}/${app_name}:${env.BUILD_NUMBER}\""
                         } else {
-                            sh "ssh -o StrictHostKeyChecking=no ${env.PROD_IP} \"docker run -d --restart always --name ${app_name} --network ${APP_NET} -p ${app_port}:${app_port} ${DOCKER_HUB_USER}/${app_name}:${env.BUILD_NUMBER}\""
+                            sh "ssh -o StrictHostKeyChecking=no ${SERVER_IP} \"docker run -d --restart always --name ${app_name} --network ${APP_NET} -p ${app_port}:${app_port} ${DOCKER_HUB_USER}/${app_name}:${env.BUILD_NUMBER}\""
                         }
                     }
                 }
