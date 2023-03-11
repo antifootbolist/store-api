@@ -1,6 +1,2 @@
-CREATE DATABASE store_api;
 CREATE USER "user-api" WITH PASSWORD 'qwe123';
-GRANT ALL ON SCHEMA public TO "user-api";
-GRANT ALL PRIVILEGES ON DATABASE store_api TO "user-api";
-GRANT ALL PRIVILEGES ON SCHEMA public TO "user-api";
-GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO "user-api";
+CREATE DATABASE store_api OWNER "user-api";
