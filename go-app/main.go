@@ -63,7 +63,11 @@ func migrate(db *gorm.DB) {
 	db.AutoMigrate(&Product{})
 
 	// If TEST_DATA is set to true, insert test data
-	if os.Getenv("TEST_DATA") == "true" {
+	testData, err := strconv.ParseBool(os.Getenv("TEST_DATA"))
+	if err != nil {
+		testData = false
+	}
+	if testData {
 		fmt.Println("Inserting test data...")
 		db.Create(&Product{Id: 1, Name: "iPhone", Description: "iPhone 14", Price: 100})
 		db.Create(&Product{Id: 2, Name: "iPhone", Description: "iPhone 14 PRO MAX", Price: 200})
