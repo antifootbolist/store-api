@@ -27,6 +27,10 @@ pipeline {
         FLYWAY_NAME='flyway'
         APIDOC_NAME = 'apidoc'
         APP_NET = 'app-net'
+
+        // Define variables depending on branch name
+        SERVER_IP = env.BRANCH_NAME == 'main' ? env.PROD_IP : env.STAGE_IP
+        TEST_DATA = env.BRANCH_NAME == 'main' ? 'False' : 'True'
     }
 
     stages {
@@ -44,6 +48,60 @@ pipeline {
                 }
             }
         }
+        stage ('Deploy DB') {
+            steps {
+                script {
+                    sh "ssh -o StrictHostKeyChecking=no ${SERVER_IP} \"docker pull ${DOCKER_HUB_USER}/${env.PG_NAME}:${env.BUILD_NUMBER}\""
+                    try {
+                        sh "ssh -o StrictHostKeyChecking=no ${SERVER_IP} \"docker stop ${env.PG_NAME}\""
+                        sh "ssh -o StrictHostKeyChecking=no ${SERVER_IP} \"docker rm ${env.PG_NAME}\""
+                    } catch (err) {
+                        echo: 'caught error: $err'
+                    }
+                    sh "ssh -o StrictHostKeyChecking=no ${SERVER_IP} \"docker run -d --restart always --name ${env.PG_NAME} --network ${APP_NET} -p ${env.PG_PORT}:${env.PG_PORT} ${DOCKER_HUB_USER}/${env.PG_NAME}:${env.BUILD_NUMBER}\""
+                }
+            }
+        }
+        stage ('Migrate DB schema') {
+            steps {
+                script {
+                    sh "cat flyway/flyway.conf" 
+                    sh "sed \"s/localhost/${SERVER_IP}/\" flyway/flyway.conf > flyway/flyway.conf"
+                    sh "cat flyway/flyway.conf"
+                    sh "docker run --rm -v flyway/db/migrations:/flyway/sql flyway/flyway.conf:/flyway/conf flyway/flyway:9.8.1 migrate"
+                }
+            }
+        }
+        stage ('Deploy App') {
+            steps {
+                script {
+                    sh "ssh -o StrictHostKeyChecking=no ${SERVER_IP} \"docker pull ${DOCKER_HUB_USER}/${env.GO_APP_NAME}:${env.BUILD_NUMBER}\""
+                    try {
+                        sh "ssh -o StrictHostKeyChecking=no ${SERVER_IP} \"docker stop ${env.GO_APP_NAME}\""
+                        sh "ssh -o StrictHostKeyChecking=no ${SERVER_IP} \"docker rm ${env.GO_APP_NAME}\""
+                    } catch (err) {
+                        echo: 'caught error: $err'
+                    }
+                    sh "scp -o StrictHostKeyChecking=no ${env.GO_APP_NAME}/env.list ${SERVER_IP}:./env.list"
+                    sh "ssh -o StrictHostKeyChecking=no ${SERVER_IP} \"docker run -d --restart always --name ${env.GO_APP_NAME} --network ${APP_NET} -p ${env.GO_APP_PORT}:${env.GO_APP_PORT} --env-file ./env.list -e TEST_DATA=${TEST_DATA} ${DOCKER_HUB_USER}/${env.GO_APP_NAME}:${env.BUILD_NUMBER}\""
+                }
+            }
+        }
+        stage ('Deploy Nginx') {
+            steps {
+                script {
+                    sh "ssh -o StrictHostKeyChecking=no ${SERVER_IP} \"docker pull ${DOCKER_HUB_USER}/${env.NGINX_NAME}:${env.BUILD_NUMBER}\""
+                    try {
+                        sh "ssh -o StrictHostKeyChecking=no ${SERVER_IP} \"docker stop ${env.NGINX_NAME}\""
+                        sh "ssh -o StrictHostKeyChecking=no ${SERVER_IP} \"docker rm ${env.NGINX_NAME}\""
+                    } catch (err) {
+                        echo: 'caught error: $err'
+                    }
+                    sh "ssh -o StrictHostKeyChecking=no ${SERVER_IP} \"docker run -d --restart always --name ${env.NGINX_NAME} --network ${APP_NET} -p ${env.NGINX_PORT}:${env.NGINX_PORT} ${DOCKER_HUB_USER}/${env.NGINX_NAME}:${env.BUILD_NUMBER}\""
+                }
+            }
+        }
+        /*
         stage ('Deploy') {
             steps {
                 script {
@@ -94,6 +152,7 @@ pipeline {
                 }
             }
         }
+        */
         stage('apiDoc') {
             when {
                 branch 'main'
