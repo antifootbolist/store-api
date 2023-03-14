@@ -1,0 +1,6 @@
+CREATE TABLE orders (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  product VARCHAR(255) NOT NULL,
+  price INTEGER NOT NULL
+);
