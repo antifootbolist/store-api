@@ -68,9 +68,9 @@ pipeline {
         stage ('Migrate DB schema') {
             steps {
                 script {
-                    sh "cat flyway/flyway.conf" 
-                    sh "sed \"s/localhost/${SERVER_IP}/\" flyway/flyway.conf > flyway/flyway.conf"
-                    sh "cat flyway/flyway.conf"
+                    sh "cat flyway/conf/flyway.conf" 
+                    sh "sed \"s/localhost/${SERVER_IP}/\" flyway/conf/flyway.conf > flyway/conf/flyway.conf"
+                    sh "cat flyway/conf/flyway.conf"
                     sh "docker run --rm -v flyway/sql:/flyway/sql -v flyway/conf:/flyway/conf flyway/flyway:9.8.1 migrate"
                 }
             }
