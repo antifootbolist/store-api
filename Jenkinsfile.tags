@@ -40,6 +40,8 @@ pipeline {
                     branches: [[name: "refs/tags/" + params.GIT_TAG], [name: "*/" + params.GIT_BRANCH]],
                     userRemoteConfigs: [[url: env.REPO_URL]]
                 ])
+                def tags = sh(returnStdout: true, script: "git tag --points-at ${GIT_COMMIT}").trim().split('\n')
+                echo "Tags: ${tags}"
             }
         }
         stage('Build') {
