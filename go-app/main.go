@@ -27,7 +27,6 @@ type Products struct {
 	Products []Product `json:"products"`
 }
 
-/* Testing migration
 type Order struct {
 	Id      int    `json:"id" gorm:"primaryKey"`
 	Name    string `json:"name"`
@@ -38,12 +37,11 @@ type Order struct {
 type Orders struct {
 	Orders []Order `json:"orders"`
 }
-*/
 
 func main() {
 	fmt.Println("Starting server on port 8080 ...")
 
-	// Establish connection to container DB
+	// Define connection string
 	dsn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
 		os.Getenv("DB_HOST"),
 		os.Getenv("DB_PORT"),
@@ -53,14 +51,21 @@ func main() {
 		os.Getenv("DB_SSLMODE"),
 	)
 
+	// Connect to DB
 	var err error
 	db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	// Migrate the schema
-	migrate(db)
+	// If TEST_DATA is set to true, insert test data
+	testData, err := strconv.ParseBool(os.Getenv("TEST_DATA"))
+	if err != nil {
+		testData = false
+	}
+	if testData {
+		UploadTestData(db)
+	}
 
 	// API handlers
 	http.HandleFunc("/api/v1/product", GetProducts)
@@ -71,33 +76,18 @@ func main() {
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
 
-func migrate(db *gorm.DB) {
-	// Migrate the schema
-	db.AutoMigrate(&Product{})
+func UploadTestData(db *gorm.DB) {
+	fmt.Println("Inserting test data ...")
 
-	/* Testing migration
-	db.AutoMigrate(&Order{})
-	*/
+	db.Create(&Product{Id: 1, Name: "iPhone", Description: "iPhone 14", Price: 100})
+	db.Create(&Product{Id: 2, Name: "iPhone", Description: "iPhone 14 PRO MAX", Price: 200})
+	db.Create(&Product{Id: 3, Name: "Samsung", Description: "Samsung Galaxy S23 Ultra", Price: 300})
 
-	// If TEST_DATA is set to true, insert test data
-	testData, err := strconv.ParseBool(os.Getenv("TEST_DATA"))
-	if err != nil {
-		testData = false
-	}
-	if testData {
-		fmt.Println("Inserting test data ...")
-		db.Create(&Product{Id: 1, Name: "iPhone", Description: "iPhone 14", Price: 100})
-		db.Create(&Product{Id: 2, Name: "iPhone", Description: "iPhone 14 PRO MAX", Price: 200})
-		db.Create(&Product{Id: 3, Name: "Samsung", Description: "Samsung Galaxy S23 Ultra", Price: 300})
+	db.Create(&Order{Id: 1, Name: "John", Product: "iPhone", Price: 1000})
+	db.Create(&Order{Id: 2, Name: "Mary", Product: "Samsung", Price: 800})
+	db.Create(&Order{Id: 3, Name: "Bob", Product: "iPhone", Price: 1200})
 
-		/* Testing migration
-		db.Create(&Order{Id: 1, Name: "John", Product: "iPhone", Price: 1000})
-		db.Create(&Order{Id: 2, Name: "Mary", Product: "Samsung", Price: 800})
-		db.Create(&Order{Id: 3, Name: "Bob", Product: "iPhone", Price: 1200})
-		*/
-
-		fmt.Println("Test data inserted.")
-	}
+	fmt.Println("Test data inserted.")
 }
 
 /**
@@ -113,22 +103,22 @@ func migrate(db *gorm.DB) {
  *     {
  *       "products": [
  *         {
- *           "Id": 1,
- *           "Name": "Product 1",
- *           "Description": "Product 1 description",
- *           "Price": 10
+ *           "id": 1,
+ *           "name": "Product 1",
+ *           "description": "Product 1 description",
+ *           "price": 10
  *         },
  *         {
- *           "Id": 2,
- *           "Name": "Product 2",
- *           "Description": "Product 2 description",
- *           "Price": 20
+ *           "id": 2,
+ *           "name": "Product 2",
+ *           "description": "Product 2 description",
+ *           "price": 20
  *         },
  *         {
- *           "Id": 3,
- *           "Name": "Product 3",
- *           "Description": "Product 3 description",
- *           "Price": 30
+ *           "id": 3,
+ *           "name": "Product 3",
+ *           "description": "Product 3 description",
+ *           "price": 30
  *         }
  *       ]
  *     }
@@ -185,10 +175,10 @@ func GetProducts(w http.ResponseWriter, r *http.Request) {
  *     HTTP/1.1 200 OK
  *     {
  *       "product": {
- *         "Id": 123,
- *         "Name": "Product name",
- *         "Description": "Product description",
- *         "Price": 100
+ *         "id": 123,
+ *         "name": "Product name",
+ *         "description": "Product description",
+ *         "price": 100
  *       }
  *     }
  *
@@ -267,10 +257,10 @@ func ListProduct(w http.ResponseWriter, r *http.Request) {
  *     HTTP/1.1 200 OK
  *     {
  *       "product": {
- *         "Id": 123,
- *         "Name": "New name",
- *         "Description": "New description",
- *         "Price": 100
+ *         "id": 123,
+ *         "name": "New name",
+ *         "description": "New description",
+ *         "price": 100
  *       }
  *     }
  *

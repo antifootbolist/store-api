@@ -1,6 +1,11 @@
 pipeline {
     agent any
 
+    parameters {
+        string(name: 'GIT_BRANCH', description: 'The Git branch to build')
+        string(name: 'GIT_TAG', description: 'The Git tag to use for building the application')
+    }
+
     environment {
         // Сhange the required parameters
         DOCKER_HUB_USER = 'antifootbolist'
@@ -29,6 +34,14 @@ pipeline {
     }
 
     stages {
+        stage('Checkout') {
+            steps {
+                checkout([$class: 'GitSCM', 
+                    branches: [[name: "refs/tags/" + params.GIT_TAG], [name: "*/" + params.GIT_BRANCH]],
+                    userRemoteConfigs: [[url: env.REPO_URL]]
+                ])
+            }
+        }
         stage('Build') {
             steps {
                 script {
