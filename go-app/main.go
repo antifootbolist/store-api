@@ -52,11 +52,21 @@ func main() {
 		os.Getenv("DB_NAME"),
 		os.Getenv("DB_SSLMODE"),
 	)
+
 	// Connect to DB
 	var err error
 	db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatal(err)
+	}
+
+	// If TEST_DATA is set to true, insert test data
+	testData, err := strconv.ParseBool(os.Getenv("TEST_DATA"))
+	if err != nil {
+		testData = false
+	}
+	if testData {
+		UploadTestData(db)
 	}
 
 	// API handlers
@@ -66,6 +76,16 @@ func main() {
 
 	// Run server on port 8080
 	log.Fatal(http.ListenAndServe(":8080", nil))
+}
+
+func UploadTestData(db *gorm.DB) {
+	fmt.Println("Inserting test data ...")
+
+	db.Create(&Product{Id: 1, Name: "iPhone", Description: "iPhone 14", Price: 100})
+	db.Create(&Product{Id: 2, Name: "iPhone", Description: "iPhone 14 PRO MAX", Price: 200})
+	db.Create(&Product{Id: 3, Name: "Samsung", Description: "Samsung Galaxy S23 Ultra", Price: 300})
+
+	fmt.Println("Test data inserted.")
 }
 
 /**
