@@ -54,7 +54,7 @@ https://documentation.red-gate.com/fd/command-line-184127404.html
 2. Запустить миграцию схемы СУБД:  
 ```flyway -configFiles=./flyway/conf -locations=filesystem:./flyway/sql migrate```
 3. Проверить что миграции были успешно применены:  
-```flyway -configFiles=./flyway/conf -locations=filesystem:./flyway/sql info```
+```flyway -configFiles=./flyway/conf/flyway.conf -locations=filesystem:./flyway/sql info```
 
 ## Запуск контейнера с приложением
 1. [Опционально] изменить пароль от пользователя *user-api* (если был изменен при запуске БД см. п.2)
