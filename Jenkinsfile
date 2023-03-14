@@ -40,6 +40,7 @@ pipeline {
                     env.SERVER_IP = serverIp
                     env.TEST_DATA = testData
                     
+                    /*
                     def app_names = [env.PG_NAME, env.GO_APP_NAME, env.NGINX_NAME]
                     for (app_name in app_names) {
                         app = docker.build("${DOCKER_HUB_USER}/${app_name}", "-f ${app_name}/Dockerfile .")
@@ -48,9 +49,11 @@ pipeline {
                             app.push("latest")
                         }
                     }
+                    */
                 }
             }
         }
+        /*
         stage ('Deploy DB') {
             steps {
                 script {
@@ -65,13 +68,15 @@ pipeline {
                 }
             }
         }
+        */
         stage ('Migrate DB schema') {
             steps {
                 script {
                     sh "cat flyway/conf/flyway.conf" 
-                    sh "sed \"s/localhost/${SERVER_IP}/\" flyway/conf/flyway.conf > flyway/conf/flyway.conf"
-                    sh "cat flyway/conf/flyway.conf"
-                    sh "docker run --rm -v \$(pwd)/flyway/sql:/flyway/sql -v \$(pwd)/flyway/conf:/flyway/conf flyway/flyway:9.8.1 migrate"
+                    sh "sed \"s/localhost/${SERVER_IP}/\" flyway/conf/flyway.conf"
+                    sh "sed \"s/localhost/${SERVER_IP}/\" flyway/conf/flyway.conf > flyway/conf/flyway.conf.test"
+                    sh "cat flyway/conf/flyway.conf.test"
+                    //sh "docker run --rm -v \$(pwd)/flyway/sql:/flyway/sql -v \$(pwd)/flyway/conf:/flyway/conf flyway/flyway:9.8.1 migrate"
                 }
             }
         }
