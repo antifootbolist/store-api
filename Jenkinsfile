@@ -71,7 +71,7 @@ pipeline {
                     sh "cat flyway/conf/flyway.conf" 
                     sh "sed \"s/localhost/${SERVER_IP}/\" flyway/conf/flyway.conf > flyway/conf/flyway.conf"
                     sh "cat flyway/conf/flyway.conf"
-                    sh "docker run --rm -v $(pwd)/flyway/sql:/flyway/sql -v $(pwd)/flyway/conf:/flyway/conf flyway/flyway:9.8.1 migrate"
+                    sh "docker run --rm -v \$(pwd)/flyway/sql:/flyway/sql -v \$(pwd)/flyway/conf:/flyway/conf flyway/flyway:9.8.1 migrate"
                 }
             }
         }
