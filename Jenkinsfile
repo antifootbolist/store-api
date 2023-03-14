@@ -27,16 +27,20 @@ pipeline {
         FLYWAY_NAME='flyway'
         APIDOC_NAME = 'apidoc'
         APP_NET = 'app-net'
-
-        // Define variables depending on branch name
-        SERVER_IP = env.BRANCH_NAME == 'main' ? env.PROD_IP : env.STAGE_IP
-        TEST_DATA = env.BRANCH_NAME == 'main' ? 'False' : 'True'
     }
 
     stages {
         stage('Build') {
             steps {
                 script {
+                    // Define variables depending on branch name
+                    serverIp = env.BRANCH_NAME == 'main' ? env.PROD_IP : env.STAGE_IP
+                    testData = env.BRANCH_NAME == 'main' ? 'False' : 'True'
+
+                    // Save the variables as environment variables
+                    env.SERVER_IP = serverIp
+                    env.TEST_DATA = testData
+                    
                     def app_names = [env.PG_NAME, env.FLYWAY_NAME, env.GO_APP_NAME, env.NGINX_NAME]
                     for (app_name in app_names) {
                         app = docker.build("${DOCKER_HUB_USER}/${app_name}", "-f ${app_name}/Dockerfile .")
