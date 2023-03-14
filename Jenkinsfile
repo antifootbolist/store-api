@@ -24,6 +24,7 @@ pipeline {
         NGINX_NAME = 'nginx'
         PG_PORT = '5432'
         PG_NAME = 'postgresql'
+        FLYWAY_NAME='flyway'
         APIDOC_NAME = 'apidoc'
         APP_NET = 'app-net'
     }
@@ -32,7 +33,7 @@ pipeline {
         stage('Build') {
             steps {
                 script {
-                    def app_names = [env.PG_NAME, env.GO_APP_NAME, env.NGINX_NAME]
+                    def app_names = [env.PG_NAME, env.FLYWAY_NAME, env.GO_APP_NAME, env.NGINX_NAME]
                     for (app_name in app_names) {
                         app = docker.build("${DOCKER_HUB_USER}/${app_name}", "-f ${app_name}/Dockerfile .")
                         docker.withRegistry('https://registry.hub.docker.com', env.DOCKER_HUB_LOGIN) {
@@ -55,11 +56,14 @@ pipeline {
                         TEST_DATA = 'True'
                     }
                     
-                    def app_names = [env.PG_NAME, env.GO_APP_NAME, env.NGINX_NAME]
+                    def app_names = [env.PG_NAME, env.FLYWAY_NAME, env.GO_APP_NAME, env.NGINX_NAME]
                     for (app_name in app_names) {
                         if (app_name == env.PG_NAME) {
                             sh 'echo "Deploying PostgreSQL server"'
                             app_port = env.PG_PORT
+                        }
+                        if (app_name == env.FLYWAY_NAME) {
+                            sh 'echo "Running scheme migration"'
                         }
                         if (app_name == env.GO_APP_NAME) {
                             sh 'echo "Deploying Go application"'
@@ -80,7 +84,11 @@ pipeline {
                         if (app_name == env.GO_APP_NAME) {
                             sh "ssh -o StrictHostKeyChecking=no ${SERVER_IP} \"docker run -d --restart always --name ${app_name} --network ${APP_NET} -p ${app_port}:${app_port} --env-file ./env.list -e TEST_DATA=${TEST_DATA} ${DOCKER_HUB_USER}/${app_name}:${env.BUILD_NUMBER}\""
                         } else {
-                            sh "ssh -o StrictHostKeyChecking=no ${SERVER_IP} \"docker run -d --restart always --name ${app_name} --network ${APP_NET} -p ${app_port}:${app_port} ${DOCKER_HUB_USER}/${app_name}:${env.BUILD_NUMBER}\""
+                            if (app_name == env.FLYWAY_NAME) {
+                                sh "ssh -o StrictHostKeyChecking=no ${SERVER_IP} \"docker run --rm --name ${app_name} --network ${APP_NET} ${DOCKER_HUB_USER}/${app_name}:${env.BUILD_NUMBER} migrate\"" 
+                            } else {
+                                sh "ssh -o StrictHostKeyChecking=no ${SERVER_IP} \"docker run -d --restart always --name ${app_name} --network ${APP_NET} -p ${app_port}:${app_port} ${DOCKER_HUB_USER}/${app_name}:${env.BUILD_NUMBER}\""
+                            }
                         }
                     }
                 }
