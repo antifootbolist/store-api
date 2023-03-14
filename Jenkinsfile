@@ -24,7 +24,6 @@ pipeline {
         NGINX_NAME = 'nginx'
         PG_PORT = '5432'
         PG_NAME = 'postgresql'
-        FLYWAY_NAME='flyway'
         APIDOC_NAME = 'apidoc'
         APP_NET = 'app-net'
     }
@@ -41,7 +40,7 @@ pipeline {
                     env.SERVER_IP = serverIp
                     env.TEST_DATA = testData
                     
-                    def app_names = [env.PG_NAME, env.FLYWAY_NAME, env.GO_APP_NAME, env.NGINX_NAME]
+                    def app_names = [env.PG_NAME, env.GO_APP_NAME, env.NGINX_NAME]
                     for (app_name in app_names) {
                         app = docker.build("${DOCKER_HUB_USER}/${app_name}", "-f ${app_name}/Dockerfile .")
                         docker.withRegistry('https://registry.hub.docker.com', env.DOCKER_HUB_LOGIN) {
@@ -72,7 +71,7 @@ pipeline {
                     sh "cat flyway/flyway.conf" 
                     sh "sed \"s/localhost/${SERVER_IP}/\" flyway/flyway.conf > flyway/flyway.conf"
                     sh "cat flyway/flyway.conf"
-                    sh "docker run --rm -v flyway/db/migrations:/flyway/sql flyway/flyway.conf:/flyway/conf flyway/flyway:9.8.1 migrate"
+                    sh "docker run --rm -v flyway/sql:/flyway/sql -v flyway/conf:/flyway/conf flyway/flyway:9.8.1 migrate"
                 }
             }
         }
